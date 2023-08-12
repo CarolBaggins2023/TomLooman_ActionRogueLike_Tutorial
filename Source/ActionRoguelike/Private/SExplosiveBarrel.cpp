@@ -63,7 +63,7 @@ void ASExplosiveBarrel::OnHealthChanged(AActor* InstigatorActor, USAttributeComp
 			InstigatorActor->GetComponentByClass(USAttributeComponent::StaticClass())
 			);
 		if (IsValid(AttributeComponent)) {
-			AttributeComponent->ApplyHealthChange(-50.0f);
+			AttributeComponent->ApplyHealthChange(InstigatorActor, -50.0f);
 		}
 	}
 }
@@ -99,5 +99,5 @@ void ASExplosiveBarrel::Tick(float DeltaTime)
 void ASExplosiveBarrel::OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) {
 	// It will fire a single impulse.
-	AttributeComp->ApplyHealthChange(-100.0f);
+	AttributeComp->ApplyHealthChange(OtherActor, -100.0f);
 }

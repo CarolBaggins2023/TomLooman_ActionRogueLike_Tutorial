@@ -4,6 +4,8 @@
 #include "AI/SAICharacter.h"
 
 #include "AIController.h"
+#include "BrainComponent.h"
+#include "AI/SAIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Perception/PawnSensingComponent.h"
 
@@ -17,23 +19,16 @@ ASAICharacter::ASAICharacter()
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
 	LowHealthThreshold = 0.3f;
+
+	TimeToHitParamName = "TimeToHit";
 }
 
 bool ASAICharacter::IsAlive() {
-	return AttributeComp->IsAlive();
+	return USAttributeComponent::IsActorAlive(this);
 }
 
 bool ASAICharacter::IsLowHealth() {
 	return AttributeComp->GetHealth() < AttributeComp->GetHealthMax() * LowHealthThreshold;
-}
-
-void ASAICharacter::OnPawnSeen(APawn* Pawn) {
-	AAIController *AIController = Cast<AAIController>(GetController());
-	if (AIController) {
-		UBlackboardComponent *BlackboardComp = AIController->GetBlackboardComponent();
-		
-		BlackboardComp->SetValueAsObject("TargetActor", Pawn);
-	}
 }
 
 void ASAICharacter::PostInitializeComponents() {
@@ -44,10 +39,37 @@ void ASAICharacter::PostInitializeComponents() {
 	AttributeComp->OnHealthChanged.AddDynamic(this, &ASAICharacter::OnHealthChanged);
 }
 
-void ASAICharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth,
-	float Delta) {
-	if (Delta < 0.0f) {
-		GetMesh()->SetScalarParameterValueOnMaterials("TimeToHit", GetWorld()->TimeSeconds);
+void ASAICharacter::SetTargetActor(AActor* TargetActor) {
+	AAIController *AIController = Cast<AAIController>(GetController());
+	if (AIController) {
+		AIController->GetBlackboardComponent()->SetValueAsObject("TargetActor", TargetActor);
 	}
 }
 
+void ASAICharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth,
+	float Delta) {
+	if (Delta < 0.0f) {
+
+		if (InstigatorActor != this) {
+			SetTargetActor(InstigatorActor);
+		}
+		
+		GetMesh()->SetScalarParameterValueOnMaterials(TimeToHitParamName, GetWorld()->TimeSeconds);
+	}
+	if (!USAttributeComponent::IsActorAlive(this)) {
+		ASAIController *AIController = Cast<ASAIController>(GetController());
+		if (AIController) {
+			AIController->GetBrainComponent()->StopLogic("Killed");
+		}
+
+		GetMesh()->SetAllBodiesSimulatePhysics(true);
+		GetMesh()->SetCollisionProfileName("Ragdoll");
+
+		SetLifeSpan(10.0f);
+	}
+}
+
+void ASAICharacter::OnPawnSeen(APawn* Pawn) {
+	SetTargetActor(Pawn);
+	DrawDebugString(GetWorld(), Pawn->GetActorLocation(), TEXT("Player Spotted"), nullptr, FColor::White, 0.5f, true);
+}

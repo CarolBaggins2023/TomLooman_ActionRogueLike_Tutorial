@@ -23,6 +23,27 @@ void ASGameModeBase::StartPlay() {
 }
 
 void ASGameModeBase::SpawnBotTimerElapsed() {
+	if (IsValid(DifficultyCurve)) {
+		MaxBotCount = DifficultyCurve->GetFloatValue(GetWorld()->TimeSeconds);
+	}
+	
+	int32 NrOfAliveBots = 0;
+	// It looks like iterating a vector of ASAICharacters' pointers. 
+	for (TActorIterator<ASAICharacter> Iter(GetWorld()); Iter; ++Iter) {
+		ASAICharacter *Bot = *Iter;
+		USAttributeComponent *AttributeComp = USAttributeComponent::GetAttributes(Bot);
+		if (AttributeComp && Bot->IsAlive()) {
+			++NrOfAliveBots;
+		}
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("Find %i alive bots."), NrOfAliveBots);
+	
+	if (NrOfAliveBots >= MaxBotCount) {
+		UE_LOG(LogTemp, Log, TEXT("At maximum bot capacity. Skipping bot spawn."));
+		return;
+	}
+	
 	UEnvQueryInstanceBlueprintWrapper *QueryInstance = UEnvQueryManager::RunEQSQuery(this, SpawnBotQuery, this, EEnvQueryRunMode::RandomBest5Pct, nullptr);
 
 	if (ensure(QueryInstance)) {
@@ -36,23 +57,6 @@ void ASGameModeBase::OnQueryCompleted(UEnvQueryInstanceBlueprintWrapper *QueryIn
 		UE_LOG(LogTemp, Warning, TEXT("Spawn Bot EQS Query Failed!"));
 		return;
 	}
-
-	if (IsValid(DifficultyCurve)) {
-		MaxBotCount = DifficultyCurve->GetFloatValue(GetWorld()->TimeSeconds);
-	}
-	
-	int32 NrOfAliveBots = 0;
-	// It looks like iterating a vector of ASAICharacters' pointers. 
-	for (TActorIterator<ASAICharacter> Iter(GetWorld()); Iter; ++Iter) {
-		ASAICharacter *Bot = *Iter;
-		if (Bot->IsAlive()) {
-			++NrOfAliveBots;
-		}
-
-		if (NrOfAliveBots >= MaxBotCount) {
-			return;
-		}
-	}
 	
 	TArray<FVector> Locations = QueryInstance->GetResultsAsLocations();
 	if (Locations.IsValidIndex(0)) {
@@ -62,5 +66,7 @@ void ASGameModeBase::OnQueryCompleted(UEnvQueryInstanceBlueprintWrapper *QueryIn
 		// Locations[0].Z += 1000.0f;
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 		GetWorld()->SpawnActor<AActor>(MinionClass, Locations[0], FRotator::ZeroRotator, SpawnParams);
+
+		DrawDebugSphere(GetWorld(), Locations[0], 50.0f, 20, FColor::Blue, false, 60.0f);
 	}
 }

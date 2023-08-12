@@ -12,7 +12,7 @@ EBTNodeResult::Type USBTTask_HealthSelf::ExecuteTask(UBehaviorTreeComponent& Own
 		ASAICharacter *AIPawn = Cast<ASAICharacter>(AIController->GetPawn());
 		if (ensure(AIPawn)) {
 			USAttributeComponent *AttributeComp = Cast<USAttributeComponent>(AIPawn->GetComponentByClass(USAttributeComponent::StaticClass()));
-			AttributeComp->ApplyHealthChange(AttributeComp->GetHealthMax());
+			AttributeComp->ApplyHealthChange(AIPawn, AttributeComp->GetHealthMax());
 			return AttributeComp->IsInjured() ? EBTNodeResult::Failed : EBTNodeResult::Succeeded;
 		}
 	}

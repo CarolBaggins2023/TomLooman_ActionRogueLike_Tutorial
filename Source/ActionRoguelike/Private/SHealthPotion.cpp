@@ -23,7 +23,7 @@ void ASHealthPotion::Interact_Implementation(APawn* InstigatorPawn) {
 		InstigatorPawn->GetComponentByClass(USAttributeComponent::StaticClass())
 		);
 	if (ensure(AttributeComp) && AttributeComp->IsInjured()) {
-		bool bIsActualApplied = AttributeComp->ApplyHealthChange(HealingAmount);
+		bool bIsActualApplied = AttributeComp->ApplyHealthChange(this, HealingAmount);
 		if (bIsActualApplied) {
 			HideAndCooldownPowerup();
 		}

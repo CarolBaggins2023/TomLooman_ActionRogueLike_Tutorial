@@ -34,8 +34,14 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Health")
 	float LowHealthThreshold;
 
+	UPROPERTY(VisibleAnywhere, Category = "Effects")
+	FName TimeToHitParamName;
+
 	UFUNCTION()
 	void OnPawnSeen(APawn* Pawn);
+
+	UFUNCTION()
+	void SetTargetActor(AActor *TargetActor);
 
 	virtual void PostInitializeComponents() override;
 

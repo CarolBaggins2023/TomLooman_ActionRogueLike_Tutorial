@@ -16,10 +16,16 @@ class ACTIONROGUELIKE_API USBTTask_RangedAttack : public UBTTaskNode
 
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 
+public:
+	USBTTask_RangedAttack();
+	
 protected:
 	UPROPERTY(EditAnywhere, Category = "Attack")
 	FName MuzzleName;
 
 	UPROPERTY(EditAnywhere, Category = "Attack")
 	UClass* ProjectileClass;
+
+	UPROPERTY(EditAnywhere, Category = "Attack")
+	float MaxBulletSpread;
 };
