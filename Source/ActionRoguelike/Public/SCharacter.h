@@ -94,5 +94,7 @@ protected:
 		float NewHealth, float Delta);
 
 	virtual void PostInitializeComponents() override;
-	
+
+	UFUNCTION(Exec)
+	bool HealSelf(float Amount = 100.0f);
 };

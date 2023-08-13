@@ -5,8 +5,11 @@
 
 #include "AIController.h"
 #include "BrainComponent.h"
+#include "SWorldUserWidget.h"
 #include "AI/SAIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Blueprint/UserWidget.h"
+#include "Components/CapsuleComponent.h"
 #include "Perception/PawnSensingComponent.h"
 
 // Sets default values
@@ -46,16 +49,24 @@ void ASAICharacter::SetTargetActor(AActor* TargetActor) {
 	}
 }
 
-void ASAICharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth,
-	float Delta) {
+void ASAICharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta) {
 	if (Delta < 0.0f) {
 
 		if (InstigatorActor != this) {
 			SetTargetActor(InstigatorActor);
 		}
+
+		if (ActiveHealthBar == nullptr) {
+			ActiveHealthBar = CreateWidget<USWorldUserWidget>(GetWorld(), HealthBarWidgetClass);
+			if (ActiveHealthBar) {
+				ActiveHealthBar->AttachedActor = this;
+				ActiveHealthBar->AddToViewport();
+			}
+		}
 		
 		GetMesh()->SetScalarParameterValueOnMaterials(TimeToHitParamName, GetWorld()->TimeSeconds);
 	}
+	
 	if (!USAttributeComponent::IsActorAlive(this)) {
 		ASAIController *AIController = Cast<ASAIController>(GetController());
 		if (AIController) {
@@ -64,6 +75,7 @@ void ASAICharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponen
 
 		GetMesh()->SetAllBodiesSimulatePhysics(true);
 		GetMesh()->SetCollisionProfileName("Ragdoll");
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 		SetLifeSpan(10.0f);
 	}

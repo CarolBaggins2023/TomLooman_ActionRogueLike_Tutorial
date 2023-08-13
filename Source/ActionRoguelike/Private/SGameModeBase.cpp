@@ -52,6 +52,16 @@ void ASGameModeBase::SpawnBotTimerElapsed() {
 	}
 }
 
+void ASGameModeBase::KillAll(AActor* InstigatorActor) {
+	for (TActorIterator<ASAICharacter> Iter(GetWorld()); Iter; ++Iter) {
+		ASAICharacter *Bot = *Iter;
+		USAttributeComponent *AttributeComp = USAttributeComponent::GetAttributes(Bot);
+		if (AttributeComp && Bot->IsAlive()) {
+			AttributeComp->Kill(InstigatorActor);
+		}
+	}
+}
+
 void ASGameModeBase::OnQueryCompleted(UEnvQueryInstanceBlueprintWrapper *QueryInstance, EEnvQueryStatus::Type QueryStatus) {
 	if (QueryStatus != EEnvQueryStatus::Success) {
 		UE_LOG(LogTemp, Warning, TEXT("Spawn Bot EQS Query Failed!"));

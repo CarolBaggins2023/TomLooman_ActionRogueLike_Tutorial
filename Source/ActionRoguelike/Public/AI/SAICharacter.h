@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "SAttributeComponent.h"
+#include "SWorldUserWidget.h"
 #include "GameFramework/Character.h"
 #include "SAICharacter.generated.h"
 
@@ -36,6 +37,11 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "Effects")
 	FName TimeToHitParamName;
+
+	UPROPERTY(EditAnywhere, Category = "UI")
+	TSubclassOf<UUserWidget> HealthBarWidgetClass;
+	
+	USWorldUserWidget *ActiveHealthBar;
 
 	UFUNCTION()
 	void OnPawnSeen(APawn* Pawn);

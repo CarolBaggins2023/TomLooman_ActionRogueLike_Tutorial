@@ -50,6 +50,10 @@ void ASCharacter::PostInitializeComponents() {
 	AttributeComp->OnHealthChanged.AddDynamic(this, &ASCharacter::OnHealthChanged);
 }
 
+bool ASCharacter::HealSelf(float Amount /* = 100.0f */) {
+	return AttributeComp->ApplyHealthChange(this, Amount);
+}
+
 void ASCharacter::MoveForward(float val) {
 	FRotator ControlRot = GetControlRotation();
 	ControlRot.Pitch = 0.0f;
