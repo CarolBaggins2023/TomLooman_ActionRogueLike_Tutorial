@@ -21,6 +21,8 @@ public:
 	ASGameModeBase();
 	
 	virtual void StartPlay() override;
+	
+	virtual void OnActorKilled(AActor *VictimActor, AActor *Killer);
 
 protected:
 
@@ -49,4 +51,7 @@ protected:
 
 	UFUNCTION(Exec)
 	void KillAll(AActor *InstigatorActor);
+
+	UFUNCTION()
+	void RespawnPlayerElapsed(AController *PlayerController);
 };

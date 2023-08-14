@@ -4,10 +4,13 @@
 #include "SGameModeBase.h"
 
 #include "EngineUtils.h"
+#include "SCharacter.h"
 #include "AI/SAICharacter.h"
 #include "EnvironmentQuery/EnvQueryManager.h"
 #include "EnvironmentQuery/EnvQueryTypes.h"
 #include "GameFramework/GameSession.h"
+
+static TAutoConsoleVariable<bool> CVarSpawnBots(TEXT("su.SpawnBots"), true, TEXT("Enable spawning of bots vias timer."));
 
 ASGameModeBase::ASGameModeBase() {
 	SpawnTimerInterval = 2.0f;
@@ -22,7 +25,36 @@ void ASGameModeBase::StartPlay() {
 	GetWorldTimerManager().SetTimer(TimerHandle_SpawnBots, this, &ASGameModeBase::SpawnBotTimerElapsed, SpawnTimerInterval, true);
 }
 
+void ASGameModeBase::RespawnPlayerElapsed(AController* PlayerController) {
+	if (ensure(PlayerController)) {
+		PlayerController->UnPossess();
+		
+		RestartPlayer(PlayerController);
+	}
+}
+
+void ASGameModeBase::OnActorKilled(AActor* VictimActor, AActor* Killer) {
+	// Check whether the killed one is player.
+	ASCharacter *Player = Cast<ASCharacter>(VictimActor);
+	if (Player) {
+		FTimerHandle TimerHandle_RespawnDelay;
+
+		FTimerDelegate Delegate;
+		Delegate.BindUFunction(this, "RespawnPlayerElapsed", Player->GetController());
+
+		float RespawnDelay = 3.0f;
+		GetWorldTimerManager().SetTimer(TimerHandle_RespawnDelay, Delegate, RespawnDelay, false);
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("OnActorKilled: VictimActor: %s, Killer: %s"), *GetNameSafe(VictimActor), *GetNameSafe(Killer));
+}
+
 void ASGameModeBase::SpawnBotTimerElapsed() {
+	if (!CVarSpawnBots.GetValueOnGameThread()) {
+		UE_LOG(LogTemp, Warning, TEXT("Bot spawning disable via cvar 'CVarSpawnBots'"));
+		return;
+	}
+	
 	if (IsValid(DifficultyCurve)) {
 		MaxBotCount = DifficultyCurve->GetFloatValue(GetWorld()->TimeSeconds);
 	}

@@ -6,6 +6,8 @@
 #include "CopyTextureShaders.h"
 #include "SGameplayInterface.h"
 
+static TAutoConsoleVariable<bool> CVarDebugDrawInteraction(TEXT("su.InteractionDebugDraw"), false, TEXT("Enable debug lines for interact component."), ECVF_Cheat);
+
 // Sets default values for this component's properties
 USInteractionComponent::USInteractionComponent()
 {
@@ -56,32 +58,15 @@ void USInteractionComponent::PrimaryInteract() {
 			if (HitActor->Implements<USGameplayInterface>()) {
 				APawn *MyPawn = Cast<APawn>(MyOwner);
 				ISGameplayInterface::Execute_Interact(HitActor, MyPawn);
-				// We only execute the interface on the first object that is hit.
-				// DrawDebugSphere(GetWorld(), Hit.ImpactPoint, Radius, 32, LineColor, false, 2.0f);
+				if (CVarDebugDrawInteraction.GetValueOnGameThread()) {
+					// We only execute the interface on the first object that is hit.
+					DrawDebugSphere(GetWorld(), Hit.ImpactPoint, Radius, 32, LineColor, false, 2.0f);
+				}
 				break;
 			}
 		}
 	}
-	
-	// DrawDebugLine(GetWorld(), Start, End, LineColor, false, 2.0f, 0, 2.0f);
+	if (CVarDebugDrawInteraction.GetValueOnGameThread()) {
+		DrawDebugLine(GetWorld(), Start, End, LineColor, false, 2.0f, 0, 2.0f);
+	}
 }
-
-
-// Called when the game starts
-void USInteractionComponent::BeginPlay()
-{
-	Super::BeginPlay();
-
-	// ...
-	
-}
-
-
-// Called every frame
-void USInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
-}
-

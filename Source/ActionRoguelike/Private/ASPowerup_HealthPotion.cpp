@@ -1,20 +1,23 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "SHealthPotion.h"
+#include "SPowerup_HealthPotion.h"
 
 #include "SAttributeComponent.h"
+#include "SPlayerState.h"
 
 // Sets default values
-ASHealthPotion::ASHealthPotion()
+ASPowerup_HealthPotion::ASPowerup_HealthPotion()
 {
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>("MeshComp");
 	RootComponent = MeshComp;
 
 	HealingAmount = 50.0f;
+
+	CreditCost = 50;
 }
 
-void ASHealthPotion::Interact_Implementation(APawn* InstigatorPawn) {
+void ASPowerup_HealthPotion::Interact_Implementation(APawn* InstigatorPawn) {
 	if (!ensure(InstigatorPawn)) {
 		return;
 	}
@@ -23,9 +26,12 @@ void ASHealthPotion::Interact_Implementation(APawn* InstigatorPawn) {
 		InstigatorPawn->GetComponentByClass(USAttributeComponent::StaticClass())
 		);
 	if (ensure(AttributeComp) && AttributeComp->IsInjured()) {
-		bool bIsActualApplied = AttributeComp->ApplyHealthChange(this, HealingAmount);
-		if (bIsActualApplied) {
-			HideAndCooldownPowerup();
+		ASPlayerState *PlayerState = InstigatorPawn->GetPlayerState<ASPlayerState>();
+		if (ensure(PlayerState)) {
+			// Only when the credits are removed, then execute healing.
+			if (PlayerState->RemoveCredits(CreditCost) && AttributeComp->ApplyHealthChange(this, HealingAmount)) {
+				HideAndCooldownPowerup();
+			}
 		}
 	}
 }

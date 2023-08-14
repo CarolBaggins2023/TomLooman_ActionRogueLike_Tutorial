@@ -5,16 +5,16 @@
 #include "CoreMinimal.h"
 #include "SPowerupActor.h"
 #include "GameFramework/Actor.h"
-#include "SHealthPotion.generated.h"
+#include "SPowerup_HealthPotion.generated.h"
 
 UCLASS()
-class ACTIONROGUELIKE_API ASHealthPotion : public ASPowerupActor
+class ACTIONROGUELIKE_API ASPowerup_HealthPotion : public ASPowerupActor
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	ASHealthPotion();
+	ASPowerup_HealthPotion();
 	
 	virtual void Interact_Implementation(APawn* InstigatorPawn) override;
 
@@ -25,4 +25,6 @@ protected:
 	UPROPERTY(EditAnywhere)
 	float HealingAmount;
 
+	UPROPERTY(EditAnywhere)
+	int32 CreditCost;
 };

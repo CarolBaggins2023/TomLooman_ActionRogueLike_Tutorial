@@ -97,4 +97,6 @@ protected:
 
 	UFUNCTION(Exec)
 	bool HealSelf(float Amount = 100.0f);
+
+	virtual FVector GetPawnViewLocation() const override;
 };

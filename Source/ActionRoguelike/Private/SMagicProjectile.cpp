@@ -5,6 +5,7 @@
 
 #include "SAttributeComponent.h"
 #include "SCharacter.h"
+#include "SGameplayFunctionLibrary.h"
 #include "Components/AudioComponent.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
@@ -29,8 +30,11 @@ void ASMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent,
 		USAttributeComponent *AttributeComp = USAttributeComponent::GetAttributes(OtherActor);
 		if (IsValid(AttributeComp)) {
 			AttributeComp->ApplyHealthChange(GetInstigator(), -1.0f * Damage);
-
+	
 			Explode();
 		}
+	}
+	if (USGameplayFunctionLibrary::ApplyDirectionDamage(GetInstigator(), OtherActor, Damage, SweepResult)) {
+		Explode();
 	}
 }
