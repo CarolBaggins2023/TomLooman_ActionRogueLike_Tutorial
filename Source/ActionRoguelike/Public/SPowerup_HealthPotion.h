@@ -19,6 +19,7 @@ public:
 	virtual void Interact_Implementation(APawn* InstigatorPawn) override;
 
 protected:
+	
 	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent *MeshComp;
 

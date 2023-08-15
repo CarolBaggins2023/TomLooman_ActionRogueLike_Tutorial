@@ -28,7 +28,6 @@ void ASPowerupActor::HideAndCooldownPowerup() {
 	GetWorldTimerManager().SetTimer(TimerHandle_RespawnTimer, this, &ASPowerupActor::ShowPowerup, RespawnTime);
 }
 
-
 void ASPowerupActor::SetPowerupState(bool bIsActivate) {
 	// collision
 	SetActorEnableCollision(bIsActivate);
@@ -36,6 +35,3 @@ void ASPowerupActor::SetPowerupState(bool bIsActivate) {
 	// visibility and propagate to children
 	RootComponent->SetVisibility(bIsActivate, true);
 }
-
-
-

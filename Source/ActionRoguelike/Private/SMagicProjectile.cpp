@@ -26,14 +26,14 @@ void ASMagicProjectile::BeginPlay() {
 
 void ASMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
                                        UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) {
-	if (IsValid(OtherActor) && OtherActor != GetInstigator()) {
-		USAttributeComponent *AttributeComp = USAttributeComponent::GetAttributes(OtherActor);
-		if (IsValid(AttributeComp)) {
-			AttributeComp->ApplyHealthChange(GetInstigator(), -1.0f * Damage);
-	
-			Explode();
-		}
-	}
+	// if (IsValid(OtherActor) && OtherActor != GetInstigator()) {
+	// 	USAttributeComponent *AttributeComp = USAttributeComponent::GetAttributes(OtherActor);
+	// 	if (IsValid(AttributeComp)) {
+	// 		AttributeComp->ApplyHealthChange(GetInstigator(), -1.0f * Damage);
+	//
+	// 		Explode();
+	// 	}
+	// }
 	if (USGameplayFunctionLibrary::ApplyDirectionDamage(GetInstigator(), OtherActor, Damage, SweepResult)) {
 		Explode();
 	}

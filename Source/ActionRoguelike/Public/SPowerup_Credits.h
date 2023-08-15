@@ -21,6 +21,9 @@ public:
 	virtual void Interact_Implementation(APawn* InstigatorPawn) override;
 	
 protected:
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UStaticMeshComponent *MeshComp;
 
 	int32 CreditsAmount;
 };

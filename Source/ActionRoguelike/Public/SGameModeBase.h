@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SPowerupActor.h"
 #include "EnvironmentQuery/EnvQuery.h"
 #include "EnvironmentQuery/EnvQueryInstanceBlueprintWrapper.h"
 #include "GameFramework/GameModeBase.h"
@@ -28,11 +29,19 @@ protected:
 
 	FTimerHandle TimerHandle_SpawnBots;
 
+	FTimerHandle TimerHandle_SpawnPowerup;
+
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
-	float SpawnTimerInterval;
+	float BotSpawnTimerInterval;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Powerup")
+	float PowerupSpawnTimerInterval;
 
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
 	UEnvQuery *SpawnBotQuery;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Powerup")
+	UEnvQuery *SpawnPowerupQuery;
 
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
 	TSubclassOf<AActor> MinionClass;
@@ -43,11 +52,29 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
 	UCurveFloat *DifficultyCurve;
 
-	UFUNCTION()
-	void OnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus);
+	UPROPERTY(EditAnywhere, Category = "PlayerState")
+	int32 CreditsKill;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Powerup")
+	TArray<TSubclassOf<ASPowerupActor>> PowerupClasses;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Powerup")
+	int32 DesiredPowerupCount;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Powerup")
+	float RequiredPowerupDistance;
 
 	UFUNCTION()
+	void OnBotSpawnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus);
+
+	UFUNCTION()
+	void OnPowerupSpawnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus);
+	
+	UFUNCTION()
 	void SpawnBotTimerElapsed();
+
+	UFUNCTION()
+	void SpawnPowerupTimerElapsed();
 
 	UFUNCTION(Exec)
 	void KillAll(AActor *InstigatorActor);

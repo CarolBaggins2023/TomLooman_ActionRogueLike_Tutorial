@@ -8,8 +8,12 @@
 
 ASPowerup_Credits::ASPowerup_Credits() {
 
-	CreditsAmount = 80;
+	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>("MeshComp");
+	RootComponent = MeshComp;
+	
+	CreditsAmount = 100;
 
+	// override the parameter in parent class
 	RespawnTime = 10.0f;
 }
 
@@ -19,7 +23,7 @@ void ASPowerup_Credits::Interact_Implementation(APawn* InstigatorPawn) {
 	}
 
 	ASPlayerState *PlayerState = InstigatorPawn->GetPlayerState<ASPlayerState>();
-	if (ensure(PlayerState)) {
+	if (PlayerState) {
 		PlayerState->AddCredits(CreditsAmount);
 		HideAndCooldownPowerup();
 	}
