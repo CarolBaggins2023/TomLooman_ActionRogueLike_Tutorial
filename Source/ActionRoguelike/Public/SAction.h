@@ -3,9 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "UObject/NoExportTypes.h"
 #include "SAction.generated.h"
 
+// Just declaration.
+class USActionComponent;
 /**
  * 
  */
@@ -26,4 +29,15 @@ public:
 	FName ActionName;
 
 	virtual UWorld* GetWorld() const override;
+
+protected:
+
+	UFUNCTION(BlueprintCallable, Category = "Action")
+	USActionComponent* GetOwningComponent() const;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Tags")
+	FGameplayTagContainer GrantsTags;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Tags")
+	FGameplayTagContainer BlockTags;
 };
