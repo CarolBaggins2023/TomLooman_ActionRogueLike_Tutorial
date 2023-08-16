@@ -31,17 +31,10 @@ ASCharacter::ASCharacter()
 
 	AttributeComp = CreateDefaultSubobject<USAttributeComponent>("AttributeComp");
 
-	MuzzleFlash = CreateDefaultSubobject<UParticleSystem>("MuzzleFlash");
+	ActionComp = CreateDefaultSubobject<USActionComponent>("ActionComp");
 	
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	this->bUseControllerRotationYaw = false;
-	
-	AttackAnimDelay = 0.2f;
-
-	bIsAccelerating = false;
-
-	RightHandSocketName = "Muzzle_01";
-	
 }
 
 void ASCharacter::PostInitializeComponents() {
@@ -76,111 +69,39 @@ void ASCharacter::MoveRight(float val) {
 	AddMovementInput(RightVector, val);
 }
 
-void ASCharacter::TurnToAttackDirection() {
-	FRotator ControlRotator = GetControlRotation();
-	ControlRotator.Pitch = GetActorRotation().Pitch;
-	ControlRotator.Roll = GetActorRotation().Roll;
-	SetActorRotation(ControlRotator, ETeleportType::None);
+void ASCharacter::SprintStart() {
+	ActionComp->StartActionByName(this, "Sprint");
+}
+
+void ASCharacter::SprintStop() {
+	ActionComp->StopActionByName(this, "Sprint");
 }
 
 void ASCharacter::PrimaryAttack() {
-	TurnToAttackDirection();
+	// They are replaced by action component.
+	/*TurnToAttackDirection();
 	PlayAnimMontage(AttackAnim);
 	
 	UGameplayStatics::SpawnEmitterAttached(MuzzleFlash, GetMesh(), FName(RightHandSocketName));
 
 	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this,
-		&ASCharacter::PrimaryAttack_TimeElapsed, AttackAnimDelay);
-}
+		&ASCharacter::PrimaryAttack_TimeElapsed, AttackAnimDelay);*/
 
-void ASCharacter::PrimaryAttack_TimeElapsed() {
-	SpawnProjectile(PrimaryProjectileClass);
+	ActionComp->StartActionByName(this, "PrimaryAttack");
 }
 
 void ASCharacter::DashAttack() {
-	TurnToAttackDirection();
-	PlayAnimMontage(AttackAnim);
-
-	GetWorldTimerManager().SetTimer(TimerHandle_Dash, this,
-		&ASCharacter::DashAttack_TimeElapsed, AttackAnimDelay);
-}
-
-void ASCharacter::DashAttack_TimeElapsed() {
-	SpawnProjectile(DashProjectileClass);
+	ActionComp->StartActionByName(this, "DashAttack");
 }
 
 void ASCharacter::BlackholeAttack() {
-	TurnToAttackDirection();
-	PlayAnimMontage(AttackAnim);
-
-	GetWorldTimerManager().SetTimer(TimerHandle_Backhole, this,
-		&ASCharacter::BlackholeAttack_TimeElapsed, AttackAnimDelay);
-}
-
-void ASCharacter::BlackholeAttack_TimeElapsed() {
-	SpawnProjectile(BlackholeProjectileClass);
-}
-
-void ASCharacter::SpawnProjectile(TSubclassOf<AActor> ClassToSpawn) {
-	if (ensureAlways(ClassToSpawn)) {
-		// Get Start and End vector to construct rotator.
-		FVector RightHandLocation = GetMesh()->GetSocketLocation(FName(RightHandSocketName));
-		FVector Start = RightHandLocation;
-		// Get End vector is somewhat troublesome.
-
-		// Perform line trace detection.
-		FHitResult Hit;
-		
-		FVector TraceStart = CameraComp->GetComponentLocation();
-		FVector TraceEnd = TraceStart + GetControlRotation().Vector() * 5000.0f;
-		
-		FCollisionObjectQueryParams ObjectQueryParams;
-		ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
-		ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldStatic);
-		ObjectQueryParams.AddObjectTypesToQuery(ECC_Pawn);
-
-		FCollisionShape Shape;
-		Shape.SetSphere(20.0f);
-
-		// Ignore the player.
-		FCollisionQueryParams QueryParams;
-		QueryParams.AddIgnoredActor(this);
-		
-		bool bBlockingHit = GetWorld()->SweepSingleByObjectType(Hit, TraceStart, TraceEnd,
-			FQuat::Identity, ObjectQueryParams, Shape, QueryParams);
-		
-		// Is the judgement redundant? Because Hit.GetActor()->GetActorLocation() and LineTraceEnd
-		// are two points at the same line.
-		// Answer: It makes sense. The key point here is that the start point is not at the same line with them.
-		FVector End = bBlockingHit ? Hit.ImpactPoint : TraceEnd;
-
-		// Get the transformation of spawned projectile.
-		FRotator ProjectileRotation = FRotationMatrix::MakeFromX(End - Start).Rotator();
-		FTransform SpawnTM = FTransform(ProjectileRotation, RightHandLocation);
-
-		FActorSpawnParameters SpawnParams;
-		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		SpawnParams.Instigator = this;
-	
-		GetWorld()->SpawnActor<AActor>(ClassToSpawn, SpawnTM, SpawnParams);
-	} else {
-		UE_LOG(LogTemp, Warning, TEXT("The ClassToSpawn is NULL."));
-	}
+	ActionComp->StartActionByName(this, "BlackholeAttack");
 }
 
 void ASCharacter::PrimaryInteract() {
 	if (InteractionComp) {
 		InteractionComp->PrimaryInteract();
 	}
-}
-
-void ASCharacter::Accelarate() {
-	if (bIsAccelerating) {
-		GetCharacterMovement()->MaxWalkSpeed = 600.0f;
-	} else {
-		GetCharacterMovement()->MaxWalkSpeed = 1200.0f;
-	}
-	bIsAccelerating = !bIsAccelerating;
 }
 
 // Called to bind functionality to input
@@ -197,11 +118,13 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAction("PrimaryAttack", IE_Pressed, this, &ASCharacter::PrimaryAttack);
 	PlayerInputComponent->BindAction("DashAttack", IE_Pressed, this, &ASCharacter::DashAttack);
 	PlayerInputComponent->BindAction("BlackholeAttack", IE_Pressed, this, &ASCharacter::BlackholeAttack);
-	PlayerInputComponent->BindAction("Accelerating", IE_Pressed, this, &ASCharacter::Accelarate);
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 
 	PlayerInputComponent->BindAction("PrimaryInteract", IE_Pressed, this, &ASCharacter::PrimaryInteract);
+
+	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &ASCharacter::SprintStart);
+	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &ASCharacter::SprintStop);
 }
 
 void ASCharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth,

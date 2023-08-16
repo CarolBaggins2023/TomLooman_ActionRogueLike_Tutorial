@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SActionComponent.h"
 #include "GameFramework/Character.h"
 #include "SCharacter.generated.h"
 
@@ -23,6 +24,10 @@ public:
 	void MoveForward(float val);
 
 	void MoveRight(float val);
+
+	void SprintStart();
+	
+	void SprintStop();
 	
 	void PrimaryAttack();
 
@@ -31,8 +36,6 @@ public:
 	void BlackholeAttack();
 
 	void PrimaryInteract();
-
-	void Accelarate();
 	
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -48,46 +51,11 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	USInteractionComponent *InteractionComp;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Effects");
-	UParticleSystem *MuzzleFlash;
-
-	UPROPERTY(VisibleAnywhere, Category = "Effects")
-	FName RightHandSocketName;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USAttributeComponent *AttributeComp;
 
-	UPROPERTY(EditAnywhere, Category = "Attack")
-	TSubclassOf<AActor> PrimaryProjectileClass;
-	
-	UPROPERTY(EditAnywhere, Category = "Attack");
-	TSubclassOf<AActor> DashProjectileClass;
-
-	UPROPERTY(EditAnywhere, Category = "Attack");
-	TSubclassOf<AActor> BlackholeProjectileClass;
-	
-	UPROPERTY(EditAnywhere, Category = "Attack")
-	UAnimMontage* AttackAnim;
-
-	float AttackAnimDelay;
-
-	bool bIsAccelerating;
-	
-	FTimerHandle TimerHandle_PrimaryAttack;
-
-	FTimerHandle TimerHandle_Dash;
-
-	FTimerHandle TimerHandle_Backhole;
-
-	void TurnToAttackDirection();
-	
-	void PrimaryAttack_TimeElapsed();
-
-	void DashAttack_TimeElapsed();
-
-	void BlackholeAttack_TimeElapsed();
-
-	void SpawnProjectile(TSubclassOf<AActor> ClassToSpawn);
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Actions")
+	USActionComponent *ActionComp;
 
 	UFUNCTION()
 	void OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp,
