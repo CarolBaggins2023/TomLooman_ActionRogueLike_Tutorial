@@ -30,7 +30,7 @@ void USAction_ProjectileAttack::StartAction_Implementation(AActor* Instigator) {
 		FTimerHandle TimerHandle_AttackDelay;
 		FTimerDelegate Delegate;
 		Delegate.BindUFunction(this, "AttackDelay_TimeElapsed", Character);
-		
+		// GetWorld() is override in SAction.
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle_AttackDelay, Delegate, AttackAnimDelay, false);
 	}
 }

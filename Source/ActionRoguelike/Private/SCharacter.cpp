@@ -6,6 +6,7 @@
 #include "SAttributeComponent.h"
 #include "SDashProjectile.h"
 #include "SInteractionComponent.h"
+#include "SPlayerState.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -77,6 +78,10 @@ void ASCharacter::SprintStop() {
 	ActionComp->StopActionByName(this, "Sprint");
 }
 
+void ASCharacter::ParryStart() {
+	ActionComp->StartActionByName(this, "Parry");
+}
+
 void ASCharacter::PrimaryAttack() {
 	// They are replaced by action component.
 	/*TurnToAttackDirection();
@@ -125,6 +130,8 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &ASCharacter::SprintStart);
 	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &ASCharacter::SprintStop);
+
+	PlayerInputComponent->BindAction("Parry", IE_Pressed, this, &ASCharacter::ParryStart);
 }
 
 void ASCharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth,
@@ -138,4 +145,19 @@ void ASCharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent*
 		
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
+}
+
+void ASCharacter::AddCredits(int32 CreditsAmount /* = 10000 */) {
+	// Since ASCharacter already has a member named PlayerState, the local variable in this function can't be
+	// named PlayerState again. (Local variable 'can' have the same name with member variable, but not in this function.)
+	// Or when we call PlayerState->AddCredits(), it can not figure out which PlayerState are called.
+	// In ASGameModeBase::OnActorKilled, we can have a local variable named PlayerState, because GameMode has
+	// no member called PlayerState.
+	ASPlayerState *PS = GetPlayerState<ASPlayerState>();
+	if (PS) {
+		PS->AddCredits(CreditsAmount);
+	}
+	
+	FString Msg = FString::Printf(TEXT("Add credits: %d."), CreditsAmount);
+	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, Msg);
 }

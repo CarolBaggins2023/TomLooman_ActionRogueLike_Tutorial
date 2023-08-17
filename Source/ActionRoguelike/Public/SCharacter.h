@@ -29,6 +29,8 @@ public:
 	
 	void SprintStop();
 	
+	void ParryStart();
+	
 	void PrimaryAttack();
 
 	void DashAttack();
@@ -67,4 +69,7 @@ protected:
 	bool HealSelf(float Amount = 100.0f);
 
 	virtual FVector GetPawnViewLocation() const override;
+
+	UFUNCTION(Exec)
+	void AddCredits(int32 CreditsAmount = 10000);
 };

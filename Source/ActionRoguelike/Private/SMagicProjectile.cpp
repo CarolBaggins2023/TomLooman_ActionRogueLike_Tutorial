@@ -6,6 +6,7 @@
 #include "SAttributeComponent.h"
 #include "SCharacter.h"
 #include "SGameplayFunctionLibrary.h"
+#include "Chaos/GeometryParticlesfwd.h"
 #include "Components/AudioComponent.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
@@ -26,15 +27,22 @@ void ASMagicProjectile::BeginPlay() {
 
 void ASMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
                                        UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) {
-	// if (IsValid(OtherActor) && OtherActor != GetInstigator()) {
-	// 	USAttributeComponent *AttributeComp = USAttributeComponent::GetAttributes(OtherActor);
-	// 	if (IsValid(AttributeComp)) {
-	// 		AttributeComp->ApplyHealthChange(GetInstigator(), -1.0f * Damage);
-	//
-	// 		Explode();
-	// 	}
-	// }
-	if (USGameplayFunctionLibrary::ApplyDirectionDamage(GetInstigator(), OtherActor, Damage, SweepResult)) {
-		Explode();
+	if (IsValid(OtherActor) && OtherActor != GetInstigator()) {
+		USActionComponent *ActionComp = Cast<USActionComponent>(OtherActor->GetComponentByClass(USActionComponent::StaticClass()));
+		if (ActionComp && ActionComp->ActiveGameplayTags.HasTag(ParryTag)) {
+			// We can do this as we have 'MoveComp->bRotationFollowsVelocity = true' in SProjectileBase.
+			MoveComp->Velocity = -MoveComp->Velocity;
+
+			// Now the instigator of the projectile should be the one who parried it.
+			SetInstigator(Cast<APawn>(OtherActor));
+			
+			// We don't want the projectile explode, or it is useless.
+			return;
+		}
+		
+		if (USGameplayFunctionLibrary::ApplyDirectionDamage(GetInstigator(), OtherActor, Damage, SweepResult)) {
+			Explode();
+		}
 	}
+	
 }

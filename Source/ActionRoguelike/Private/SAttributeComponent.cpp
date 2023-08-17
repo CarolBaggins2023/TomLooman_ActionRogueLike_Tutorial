@@ -3,6 +3,7 @@
 
 #include "SAttributeComponent.h"
 
+#include "SCharacter.h"
 #include "SGameModeBase.h"
 
 static TAutoConsoleVariable<float> CVarDamageMultiplier(TEXT("su.DamageMultiplier"), 1.0f, TEXT("Global damage modifier for attribute component."), ECVF_Cheat);
@@ -16,7 +17,10 @@ USAttributeComponent::USAttributeComponent()
 }
 
 bool USAttributeComponent::ApplyHealthChange(AActor *InstigatorActor, float Delta) {
-	if (!GetOwner()->CanBeDamaged() && Delta > 0.0f) {
+	if (Delta < 0.0f && !GetOwner()->CanBeDamaged()) {
+		FString Msg = FString::Printf(TEXT("%s can't be damaged."), *GetNameSafe(GetOwner()));
+		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::White, Msg);
+		
 		return false;
 	}
 

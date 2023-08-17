@@ -8,6 +8,7 @@
 #include "GameFramework/Character.h"
 #include "SAICharacter.generated.h"
 
+class USActionComponent;
 class UPawnSensingComponent;
 
 UCLASS()
@@ -31,6 +32,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USAttributeComponent *AttributeComp;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	USActionComponent *ActionComp;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Health")
 	float LowHealthThreshold;

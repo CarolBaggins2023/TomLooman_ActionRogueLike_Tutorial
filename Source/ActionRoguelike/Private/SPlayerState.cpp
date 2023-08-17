@@ -33,5 +33,3 @@ bool ASPlayerState::RemoveCredits(int32 Delta) {
 
 	return true;
 }
-
-

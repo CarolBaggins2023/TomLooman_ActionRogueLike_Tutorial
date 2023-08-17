@@ -20,10 +20,16 @@ class ACTIONROGUELIKE_API USAction : public UObject
 public:
 
 	UFUNCTION(BlueprintNativeEvent, Category = "Action")
+	bool CanStart(AActor *Instigator);
+
+	UFUNCTION(BlueprintNativeEvent, Category = "Action")
 	void StartAction(AActor *Instigator);
 
 	UFUNCTION(BlueprintNativeEvent, Category = "Action")
 	void StopAction(AActor *Instigator);
+
+	UFUNCTION(BlueprintCallable, Category = "Action")
+	bool IsRunning();
 
 	UPROPERTY(EditDefaultsOnly, Category = "Action")
 	FName ActionName;
@@ -40,4 +46,6 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Tags")
 	FGameplayTagContainer BlockTags;
+
+	bool bIsRunning;
 };

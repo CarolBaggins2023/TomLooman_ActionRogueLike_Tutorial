@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "SProjectileBase.h"
 #include "GameFramework/Actor.h"
 #include "SMagicProjectile.generated.h"
@@ -27,6 +28,9 @@ public:
 	virtual void BeginPlay() override;
 
 protected:
-	UPROPERTY(EditAnywhere, Category = "Attack")
+	UPROPERTY(EditAnywhere, Category = "Damage")
 	float Damage;
+
+	UPROPERTY(EditAnywhere, Category = "Damage")
+	FGameplayTag ParryTag;
 };
