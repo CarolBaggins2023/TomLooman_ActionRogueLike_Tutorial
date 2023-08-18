@@ -31,10 +31,13 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Action")
 	bool IsRunning();
 
+	virtual UWorld* GetWorld() const override;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Action")
 	FName ActionName;
 
-	virtual UWorld* GetWorld() const override;
+	UPROPERTY(EditDefaultsOnly, Category = "Action")
+	bool bAutoStart;
 
 protected:
 
