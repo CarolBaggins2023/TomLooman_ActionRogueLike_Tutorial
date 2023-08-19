@@ -72,4 +72,7 @@ protected:
 
 	UFUNCTION(Exec)
 	void AddCredits(int32 CreditsAmount = 10000);
+
+	UFUNCTION(Exec)
+	void AddRage(float RageAmount = 100.0f);
 };

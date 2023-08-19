@@ -19,6 +19,8 @@ class ACTIONROGUELIKE_API USAction : public UObject
 
 public:
 
+	USAction();
+
 	UFUNCTION(BlueprintNativeEvent, Category = "Action")
 	bool CanStart(AActor *Instigator);
 

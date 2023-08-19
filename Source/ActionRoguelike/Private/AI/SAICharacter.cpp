@@ -56,6 +56,17 @@ void ASAICharacter::SetTargetActor(AActor* TargetActor) {
 	}
 }
 
+AActor* ASAICharacter::GetTargetActor() {
+	AAIController *AIController = Cast<AAIController>(GetController());
+	if (AIController) {
+		UBlackboardComponent *BlackboardComp = AIController->GetBlackboardComponent();
+		if (BlackboardComp) {
+			return Cast<AActor>(BlackboardComp->GetValueAsObject("TargetActor"));
+		}
+	}
+	return nullptr;
+}
+
 void ASAICharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta) {
 	if (Delta < 0.0f) {
 
@@ -91,6 +102,20 @@ void ASAICharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponen
 }
 
 void ASAICharacter::OnPawnSeen(APawn* Pawn) {
+	if (GetTargetActor() == Pawn) {
+		return;
+	}
+	
 	SetTargetActor(Pawn);
-	DrawDebugString(GetWorld(), Pawn->GetActorLocation(), TEXT("Player Spotted"), nullptr, FColor::White, 0.5f, true);
+	// DrawDebugString(GetWorld(), Pawn->GetActorLocation(), TEXT("Player Spotted"), nullptr, FColor::White, 0.5f, true);
+
+	if (PlayerSpottedWidget == nullptr && ensure(PlayerSpottedWidgetClass)) {
+		PlayerSpottedWidget = CreateWidget<USWorldUserWidget>(GetWorld(), PlayerSpottedWidgetClass);
+		if (ensure(PlayerSpottedWidget)) {
+			PlayerSpottedWidget->AttachedActor = this;
+			// Index which is higher than default (0) places itself on the top of any other widget.
+			// Otherwise, it may end up behind the minion health bar.
+			PlayerSpottedWidget->AddToViewport(10);
+		}
+	}
 }

@@ -3,6 +3,7 @@
 
 #include "SAttributeComponent.h"
 
+#include "IntVectorTypes.h"
 #include "SCharacter.h"
 #include "SGameModeBase.h"
 
@@ -12,8 +13,10 @@ static TAutoConsoleVariable<float> CVarDamageMultiplier(TEXT("su.DamageMultiplie
 USAttributeComponent::USAttributeComponent()
 {
 	Health = 100.0f;
-
 	HealthMax = 100.0f;
+
+	Rage = 0.0f;
+	RageMax = 100.0f;
 }
 
 bool USAttributeComponent::ApplyHealthChange(AActor *InstigatorActor, float Delta) {
@@ -45,6 +48,12 @@ bool USAttributeComponent::ApplyHealthChange(AActor *InstigatorActor, float Delt
 	
 	return ActualDelta != 0;
 }
+
+void USAttributeComponent::ApplyRageChange(AActor *InstigatorActor, float Delta) {
+	Rage = FMath::Clamp(Rage + Delta, 0, RageMax);
+	OnRageChanged.Broadcast(InstigatorActor, this, Rage, Delta);
+}
+
 
 bool USAttributeComponent::IsAlive() {
 	return Health > 0.0f;
@@ -79,4 +88,12 @@ bool USAttributeComponent::IsActorAlive(AActor* Actor) {
 		return AttributeComp->IsAlive();
 	}
 	return false;
+}
+
+float USAttributeComponent::GetRage() const {
+	return Rage;
+}
+
+float USAttributeComponent::GetRageMax() const {
+	return RageMax;
 }

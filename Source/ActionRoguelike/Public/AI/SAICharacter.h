@@ -47,11 +47,19 @@ protected:
 	
 	USWorldUserWidget *ActiveHealthBar;
 
+	UPROPERTY(EditAnywhere, Category = "UI")
+	TSubclassOf<UUserWidget> PlayerSpottedWidgetClass;
+
+	USWorldUserWidget *PlayerSpottedWidget;
+
 	UFUNCTION()
 	void OnPawnSeen(APawn* Pawn);
 
 	UFUNCTION()
 	void SetTargetActor(AActor *TargetActor);
+
+	UFUNCTION()
+	AActor* GetTargetActor();
 
 	virtual void PostInitializeComponents() override;
 

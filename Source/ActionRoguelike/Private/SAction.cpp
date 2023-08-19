@@ -5,6 +5,10 @@
 
 #include "SActionComponent.h"
 
+USAction::USAction() {
+	bAutoStart = false;
+}
+
 void USAction::StartAction_Implementation(AActor* Instigator) {
 	UE_LOG(LogTemp, Log, TEXT("Start action %s."), *ActionName.ToString());
 

@@ -138,6 +138,8 @@ void ASCharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent*
 	float Delta) {
 	if (Delta < 0.0f) {
 		GetMesh()->SetScalarParameterValueOnMaterials("TimeToHit", GetWorld()->TimeSeconds);
+
+		AttributeComp->ApplyRageChange(this, abs(Delta));
 	}
 	if (NewHealth <= 0.0f) {
 		APlayerController *PC = Cast<APlayerController>(GetController());
@@ -159,5 +161,12 @@ void ASCharacter::AddCredits(int32 CreditsAmount /* = 10000 */) {
 	}
 	
 	FString Msg = FString::Printf(TEXT("Add credits: %d."), CreditsAmount);
-	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, Msg);
+	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, Msg);
+}
+
+void ASCharacter::AddRage(float RageAmount /* = 100 */) {
+	AttributeComp->ApplyRageChange(this, RageAmount);
+
+	FString Msg = FString::Printf(TEXT("Add rage: %.0f."), RageAmount);
+	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, Msg);
 }
