@@ -47,6 +47,8 @@ void USActionEffect_Thorns::OnHealthChanged(AActor* InstigatorActor, USAttribute
 
 	if (Delta < 0.0f && OwningActor != InstigatorActor) {
 		float ReflectDamage = FMath::Abs(FMath::RoundToInt(Delta * ReflectRate));
-		USGameplayFunctionLibrary::ApplyDamage(OwningActor, InstigatorActor, ReflectDamage);
+		// Maybe it is better to make the damage causer nullptr? 
+		// USGameplayFunctionLibrary::ApplyDamage(OwningActor, InstigatorActor, ReflectDamage);
+		USGameplayFunctionLibrary::ApplyDamage(nullptr, InstigatorActor, ReflectDamage);
 	}
 }

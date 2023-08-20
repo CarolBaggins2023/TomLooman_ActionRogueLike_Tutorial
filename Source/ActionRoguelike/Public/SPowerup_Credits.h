@@ -22,8 +22,8 @@ public:
 	
 protected:
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	UStaticMeshComponent *MeshComp;
+	// UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	// UStaticMeshComponent *MeshComp;
 
 	int32 CreditsAmount;
 };

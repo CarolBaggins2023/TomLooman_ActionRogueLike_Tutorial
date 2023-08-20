@@ -8,8 +8,8 @@
 
 ASPowerup_Credits::ASPowerup_Credits() {
 
-	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>("MeshComp");
-	RootComponent = MeshComp;
+	// MeshComp = CreateDefaultSubobject<UStaticMeshComponent>("MeshComp");
+	// RootComponent = MeshComp;
 	
 	CreditsAmount = 100;
 

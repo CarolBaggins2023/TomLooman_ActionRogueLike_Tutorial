@@ -21,7 +21,7 @@ public:
 	FVector WorldOffset;
 
 	// Assigned when creating widget.
-	UPROPERTY(BlueprintReadOnly, Category = "UI")
+	UPROPERTY(BlueprintReadWrite, Category = "UI", meta = (ExposeOnSpawn=true))
 	AActor *AttachedActor;
 	
 protected:

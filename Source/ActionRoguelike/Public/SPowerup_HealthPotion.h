@@ -20,8 +20,8 @@ public:
 
 protected:
 	
-	UPROPERTY(VisibleAnywhere)
-	UStaticMeshComponent *MeshComp;
+	// UPROPERTY(VisibleAnywhere)
+	// UStaticMeshComponent *MeshComp;
 
 	UPROPERTY(EditAnywhere)
 	float HealingAmount;

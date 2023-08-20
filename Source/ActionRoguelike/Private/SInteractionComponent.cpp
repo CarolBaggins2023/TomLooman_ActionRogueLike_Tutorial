@@ -24,7 +24,10 @@ void USInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	FActorComponentTickFunction* ThisTickFunction) {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	FindBestInteractable();
+	APawn *MyPawn = Cast<APawn>(GetOwner());
+	if (MyPawn->IsLocallyControlled()) {
+		FindBestInteractable();
+	}
 }
 
 void USInteractionComponent::FindBestInteractable() {
@@ -57,7 +60,7 @@ void USInteractionComponent::FindBestInteractable() {
 			if (HitActor->Implements<USGameplayInterface>()) {
 				if (CVarDebugDrawInteraction.GetValueOnGameThread()) {
 					// We only execute the interface on the first object that is hit.
-					DrawDebugSphere(GetWorld(), Hit.ImpactPoint, Radius, 32, LineColor, false, 2.0f);
+					DrawDebugSphere(GetWorld(), Hit.ImpactPoint, Radius, 32, LineColor, false, 0.0f);
 				}
 
 				FocusActor = HitActor;
@@ -85,16 +88,20 @@ void USInteractionComponent::FindBestInteractable() {
 	}
 	
 	if (CVarDebugDrawInteraction.GetValueOnGameThread()) {
-		DrawDebugLine(GetWorld(), Start, End, LineColor, false, 2.0f, 0, 2.0f);
+		DrawDebugLine(GetWorld(), Start, End, LineColor, false, 2.0f, 0, 0.0f);
 	}
 }
 
 void USInteractionComponent::PrimaryInteract() {
-	if (FocusActor == nullptr) {
+	ServerInteract(FocusActor);
+}
+
+void USInteractionComponent::ServerInteract_Implementation(AActor *InFocus) {
+	if (InFocus == nullptr) {
 		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, "No FocusActor to interact.");
 		return;
 	}
 	
 	APawn *MyPawn = Cast<APawn>(GetOwner());
-	ISGameplayInterface::Execute_Interact(FocusActor, MyPawn);
+	ISGameplayInterface::Execute_Interact(InFocus, MyPawn);
 }

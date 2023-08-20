@@ -40,12 +40,15 @@ public:
 	FGameplayTagContainer ActiveGameplayTags;
 	
 protected:
-	
-	virtual void BeginPlay() override;
 
 	UPROPERTY(EditAnywhere, Category = "Actions")
 	TArray<TSubclassOf<USAction>> DefaultActions;
 
 	UPROPERTY()
 	TArray<USAction*> Actions;
+
+	virtual void BeginPlay() override;
+
+	UFUNCTION(Server, Reliable)
+	void ServerStartAction(AActor *Instigator, FName ActionName);
 };

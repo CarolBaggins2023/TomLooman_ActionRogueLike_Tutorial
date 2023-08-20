@@ -21,10 +21,13 @@ public:
 
 protected:
 
+	UFUNCTION(Server, Reliable)
+	void ServerInteract(AActor *InFocus);
+
 	void FindBestInteractable();
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
+	
 	UPROPERTY()
 	AActor *FocusActor;
 

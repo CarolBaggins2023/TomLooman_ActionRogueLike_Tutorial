@@ -35,6 +35,8 @@ ASProjectileBase::ASProjectileBase()
 	FlightSound->SetupAttachment(RootComponent);
 
 	ImpactSound = CreateDefaultSubobject<UAudioComponent>("ImpactSound");
+
+	SetReplicates(true);
 }
 
 void ASProjectileBase::OnActorHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,

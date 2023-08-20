@@ -11,7 +11,7 @@
 #include "EnvironmentQuery/EnvQueryTypes.h"
 #include "GameFramework/GameSession.h"
 
-static TAutoConsoleVariable<bool> CVarSpawnBots(TEXT("su.SpawnBots"), true, TEXT("Enable spawning of bots vias timer."));
+static TAutoConsoleVariable<bool> CVarSpawnBots(TEXT("su.SpawnBots"), false, TEXT("Enable spawning of bots vias timer."));
 
 ASGameModeBase::ASGameModeBase() {
 	BotSpawnTimerInterval = 2.0f;

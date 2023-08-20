@@ -3,15 +3,23 @@
 
 #include "SPowerupActor.h"
 
+#include "Animation/AnimInstanceProxy.h"
 #include "Components/SphereComponent.h"
 
 // Sets default values
 ASPowerupActor::ASPowerupActor()
 {
 	SphereComp = CreateDefaultSubobject<USphereComponent>("SphereComp");
+	SphereComp->SetCollisionProfileName("Powerup");
 	RootComponent = SphereComp;
 
+	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>("MeshComp");
+	MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	MeshComp->SetupAttachment(RootComponent);
+
 	RespawnTime = 5.0f;
+
+	SetReplicates(true);
 }
 
 void ASPowerupActor::Interact_Implementation(APawn* InstigatorPawn) {

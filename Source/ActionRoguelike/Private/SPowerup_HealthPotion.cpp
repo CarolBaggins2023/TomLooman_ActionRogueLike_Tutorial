@@ -9,8 +9,8 @@
 // Sets default values
 ASPowerup_HealthPotion::ASPowerup_HealthPotion()
 {
-	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>("MeshComp");
-	RootComponent = MeshComp;
+	// MeshComp = CreateDefaultSubobject<UStaticMeshComponent>("MeshComp");
+	// RootComponent = MeshComp;
 
 	HealingAmount = 50.0f;
 

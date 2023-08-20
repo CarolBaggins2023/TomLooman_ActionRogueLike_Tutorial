@@ -5,10 +5,10 @@
 
 #include "SActionComponent.h"
 
-ASPowerupActor_ActionDash::ASPowerupActor_ActionDash() {
-	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>("MeshComp");
-	RootComponent = MeshComp;
-}
+// ASPowerupActor_ActionDash::ASPowerupActor_ActionDash() {
+// 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>("MeshComp");
+// 	RootComponent = MeshComp;
+// }
 
 void ASPowerupActor_ActionDash::Interact_Implementation(APawn* InstigatorPawn) {
 	if (!ensure(InstigatorPawn && DashActionClass)) {

@@ -17,14 +17,14 @@ class ACTIONROGUELIKE_API ASPowerupActor_ActionDash : public ASPowerupActor
 
 public:
 
-	ASPowerupActor_ActionDash();
+	// ASPowerupActor_ActionDash();
 	
 	virtual void Interact_Implementation(APawn* InstigatorPawn) override;
 
 protected:
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	UStaticMeshComponent *MeshComp;
+	// UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	// UStaticMeshComponent *MeshComp;
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<USAction> DashActionClass;
