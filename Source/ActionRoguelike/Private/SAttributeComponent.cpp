@@ -19,6 +19,7 @@ USAttributeComponent::USAttributeComponent()
 	Rage = 0.0f;
 	RageMax = 100.0f;
 
+	// Function to replicate variables in Component is different. 
 	SetIsReplicatedByDefault(true);
 }
 
@@ -44,7 +45,9 @@ bool USAttributeComponent::ApplyHealthChange(AActor *InstigatorActor, float Delt
 	if (ActualDelta != 0.0f) {
 		// It will be called in MulticastHealthChanged.
 		// OnHealthChanged.Broadcast(InstigatorActor, this, Health, ActualDelta);
-		
+
+		// If it is called on a client, it will just be called locally for its own client,
+		// and will not be sent to anyone else.
 		MulticastHealthChanged(InstigatorActor, Health, ActualDelta);
 	}
 	

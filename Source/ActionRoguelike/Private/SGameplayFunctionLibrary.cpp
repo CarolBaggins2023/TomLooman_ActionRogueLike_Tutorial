@@ -23,7 +23,7 @@ bool USGameplayFunctionLibrary::ApplyDirectionDamage(AActor* DamageCauser, AActo
 	if (ApplyDamage(DamageCauser, TargetActor, DamageAmount)) {
 		UPrimitiveComponent *HitComp = HitResult.GetComponent();
 		if (HitComp && HitComp->IsSimulatingPhysics(HitResult.BoneName)) {
-			HitComp->AddImpulseAtLocation(-HitResult.ImpactNormal * 300000.0f, HitResult.ImpactPoint, HitResult.BoneName);
+			HitComp->AddImpulseAtLocation(-HitResult.ImpactNormal * 100000.0f, HitResult.ImpactPoint, HitResult.BoneName);
 		}
 		// Magic projectile's explosion depends on the return of this function.
 		// Because Minions' simulating physics is only opened when it is killed, return true can not be put in the inner if statement.

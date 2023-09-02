@@ -54,6 +54,16 @@ void ASAICharacter::SetTargetActor(AActor* TargetActor) {
 	if (AIController) {
 		AIController->GetBlackboardComponent()->SetValueAsObject("TargetActor", TargetActor);
 	}
+
+	if (PlayerSpottedWidget == nullptr && ensure(PlayerSpottedWidgetClass)) {
+		PlayerSpottedWidget = CreateWidget<USWorldUserWidget>(GetWorld(), PlayerSpottedWidgetClass);
+		if (ensure(PlayerSpottedWidget)) {
+			PlayerSpottedWidget->AttachedActor = this;
+			// Index which is higher than default (0) places itself on the top of any other widget.
+			// Otherwise, it may end up behind the minion health bar.
+			PlayerSpottedWidget->AddToViewport(10);
+		}
+	}
 }
 
 AActor* ASAICharacter::GetTargetActor() {
@@ -97,7 +107,7 @@ void ASAICharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponen
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		GetCharacterMovement()->DisableMovement();
 
-		SetLifeSpan(10.0f);
+		SetLifeSpan(5.0f);
 	}
 }
 
@@ -108,14 +118,4 @@ void ASAICharacter::OnPawnSeen(APawn* Pawn) {
 	
 	SetTargetActor(Pawn);
 	// DrawDebugString(GetWorld(), Pawn->GetActorLocation(), TEXT("Player Spotted"), nullptr, FColor::White, 0.5f, true);
-
-	if (PlayerSpottedWidget == nullptr && ensure(PlayerSpottedWidgetClass)) {
-		PlayerSpottedWidget = CreateWidget<USWorldUserWidget>(GetWorld(), PlayerSpottedWidgetClass);
-		if (ensure(PlayerSpottedWidget)) {
-			PlayerSpottedWidget->AttachedActor = this;
-			// Index which is higher than default (0) places itself on the top of any other widget.
-			// Otherwise, it may end up behind the minion health bar.
-			PlayerSpottedWidget->AddToViewport(10);
-		}
-	}
 }

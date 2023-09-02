@@ -19,6 +19,9 @@ ASPowerupActor::ASPowerupActor()
 
 	RespawnTime = 5.0f;
 
+	// If server spawns an replicated actor, then the server will tell all clients to spawn
+	// a copy of this actor, of the same class and same transformation.
+	// The same when it comes to delete an replicated actor.
 	SetReplicates(true);
 }
 

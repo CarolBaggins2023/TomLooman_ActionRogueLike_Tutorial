@@ -12,6 +12,7 @@
 #include "GameFramework/GameSession.h"
 
 static TAutoConsoleVariable<bool> CVarSpawnBots(TEXT("su.SpawnBots"), false, TEXT("Enable spawning of bots vias timer."));
+static TAutoConsoleVariable<bool> CVarSpawnPowerups(TEXT("su.SpawnPowerups"), false, TEXT("Enable spawning of powerups vias timer."));
 
 ASGameModeBase::ASGameModeBase() {
 	BotSpawnTimerInterval = 2.0f;
@@ -75,6 +76,12 @@ void ASGameModeBase::SpawnBotTimerElapsed() {
 }
 
 void ASGameModeBase::SpawnPowerupTimerElapsed() {
+	if (!CVarSpawnPowerups.GetValueOnGameThread()) {
+		UE_LOG(LogTemp, Warning, TEXT("Powerup spawning disable via cvar 'CVarSpawnPowers'"));
+		return;
+	}
+
+	
 	UEnvQueryInstanceBlueprintWrapper *QueryInstance = UEnvQueryManager::RunEQSQuery(this, SpawnPowerupQuery, this, EEnvQueryRunMode::RandomBest5Pct, nullptr);
 
 	if (ensure(QueryInstance)) {

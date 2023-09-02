@@ -96,7 +96,11 @@ void ASCharacter::PrimaryAttack() {
 }
 
 void ASCharacter::DashAttack() {
-	ActionComp->StartActionByName(this, "DashAttack");
+	bool HasDashAttack = ActionComp->StartActionByName(this, "DashAttack");
+	if (!HasDashAttack) {
+		FString Msg = FString::Printf(TEXT("Don't have Action: DashAttack."));
+		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::White, Msg);
+	}
 }
 
 void ASCharacter::BlackholeAttack() {

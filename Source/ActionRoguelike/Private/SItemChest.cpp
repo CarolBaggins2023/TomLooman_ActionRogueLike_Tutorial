@@ -16,11 +16,15 @@ ASItemChest::ASItemChest()
 
 	TargetPitch = 100.0f;
 
+	// Mark it up.
 	SetReplicates(true);
 }
 
 void ASItemChest::Interact_Implementation(APawn* InstigatorPawn) {
 	bLidOpened = !bLidOpened;
+
+	// RepNotify will be automatically triggered in clients, but not in server.
+	// Since this function is definitely executed in server, we need to manually call RepNotify here.
 	OnRep_LidOpened();
 }
 

@@ -33,6 +33,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Actions")
 	bool StopActionByName(AActor *Instigator, FName ActionName);
 
+	virtual bool ReplicateSubobjects(class UActorChannel *Channel, class FOutBunch *Bunch, FReplicationFlags *RepFlags) override;
+
 	UFUNCTION(BlueprintCallable, Category = "Actions")
 	USAction* GetAction(TSubclassOf<USAction> ActionClass);
 
@@ -44,7 +46,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Actions")
 	TArray<TSubclassOf<USAction>> DefaultActions;
 
-	UPROPERTY()
+	UPROPERTY(Replicated)
 	TArray<USAction*> Actions;
 
 	virtual void BeginPlay() override;

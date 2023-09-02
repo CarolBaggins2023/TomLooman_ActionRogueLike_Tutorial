@@ -30,8 +30,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UStaticMeshComponent *LidMesh;
 
-	// RepNotifies are only automatically triggered for clients (in C++ !!!).
-	// But they are automatically triggered in both clients and servers in Blueprint.
+	// In C++, RepNotifies are only automatically triggered for clients.
+	// But in Blueprint, they are automatically triggered in both clients and servers.
 	UFUNCTION()
 	void OnRep_LidOpened();
 
