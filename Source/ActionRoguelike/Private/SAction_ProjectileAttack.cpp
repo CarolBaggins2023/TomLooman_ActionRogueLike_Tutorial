@@ -27,11 +27,15 @@ void USAction_ProjectileAttack::StartAction_Implementation(AActor* Instigator) {
 	
 		UGameplayStatics::SpawnEmitterAttached(CastingEffect, Character->GetMesh(), FName(HandSocketName));
 
-		FTimerHandle TimerHandle_AttackDelay;
-		FTimerDelegate Delegate;
-		Delegate.BindUFunction(this, "AttackDelay_TimeElapsed", Character);
-		// GetWorld() is override in SAction.
-		GetWorld()->GetTimerManager().SetTimer(TimerHandle_AttackDelay, Delegate, AttackAnimDelay, false);
+		// Spawn projectiles only on the Server and the Server will call Clients to replicate the spawning.
+		// Or USAction_ProjectileAttack::AttackDelay_TimeElapsed will be triggered twice.
+		if (Character->HasAuthority()) {
+			FTimerHandle TimerHandle_AttackDelay;
+			FTimerDelegate Delegate;
+			Delegate.BindUFunction(this, "AttackDelay_TimeElapsed", Character);
+			// GetWorld() is override in SAction.
+			GetWorld()->GetTimerManager().SetTimer(TimerHandle_AttackDelay, Delegate, AttackAnimDelay, false);
+		}
 	}
 }
 

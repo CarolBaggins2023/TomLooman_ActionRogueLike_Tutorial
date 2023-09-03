@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "SPowerupActor.h"
+#include "SSaveGame.h"
 #include "EnvironmentQuery/EnvQuery.h"
 #include "EnvironmentQuery/EnvQueryInstanceBlueprintWrapper.h"
 #include "GameFramework/GameModeBase.h"
@@ -24,6 +25,15 @@ public:
 	virtual void StartPlay() override;
 	
 	virtual void OnActorKilled(AActor *VictimActor, AActor *Killer);
+
+	UFUNCTION(BlueprintCallable, Category = "SaveGame")
+	void WriteSaveGame();
+
+	void LoadSaveGame();
+
+	virtual void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;
+
+	virtual void HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer) override;
 
 protected:
 
@@ -63,6 +73,11 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Powerup")
 	float RequiredPowerupDistance;
+
+	FString SlotName;
+
+	UPROPERTY()
+	USSaveGame *CurrentSaveGame;
 
 	UFUNCTION()
 	void OnBotSpawnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus);

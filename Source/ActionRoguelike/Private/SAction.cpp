@@ -12,18 +12,19 @@ void USAction::Initialize(USActionComponent* NewActionComp) {
 }
 
 void USAction::StartAction_Implementation(AActor* Instigator) {
-	// UE_LOG(LogTemp, Log, TEXT("Start action %s."), *ActionName.ToString());
-	LogOnScreen(this, FString::Printf(TEXT("Started: %s"), *ActionName.ToString()), FColor::Green);
+	UE_LOG(LogTemp, Log, TEXT("Start action %s."), *ActionName.ToString());
+	// LogOnScreen(this, FString::Printf(TEXT("Started: %s"), *ActionName.ToString()), FColor::Green);
 
 	USActionComponent *Comp = GetOwningComponent();
 	Comp->ActiveGameplayTags.AppendTags(GrantsTags);
 
-	bIsRunning = true;
+	RepData.bIsRunning = true;
+	RepData.Instigator = Instigator;
 }
 
 void USAction::StopAction_Implementation(AActor* Instigator) {
-	// UE_LOG(LogTemp, Log, TEXT("Stop action %s."), *ActionName.ToString());
-	LogOnScreen(this, FString::Printf(TEXT("Stopped: %s"), *ActionName.ToString()), FColor::Orange);
+	UE_LOG(LogTemp, Log, TEXT("Stop action %s."), *ActionName.ToString());
+	// LogOnScreen(this, FString::Printf(TEXT("Stopped: %s"), *ActionName.ToString()), FColor::Orange);
 
 	// In multi-players game, it will never be true.
 	// See USAction::OnRep_IsRunning().
@@ -33,7 +34,8 @@ void USAction::StopAction_Implementation(AActor* Instigator) {
 	USActionComponent *Comp = GetOwningComponent();
 	Comp->ActiveGameplayTags.RemoveTags(GrantsTags);
 
-	bIsRunning = false;
+	RepData.bIsRunning = false;
+	RepData.Instigator = Instigator;
 }
 
 bool USAction::CanStart_Implementation(AActor* Instigator) {
@@ -42,8 +44,9 @@ bool USAction::CanStart_Implementation(AActor* Instigator) {
 	if (IsRunning()) {
 		return false;
 	}
-	
-	USActionComponent *Comp = Cast<USActionComponent>(GetOuter());
+
+	AActor *Actor = Cast<AActor>(GetOuter());
+	USActionComponent *Comp = Cast<USActionComponent>(Actor->GetComponentByClass(USActionComponent::StaticClass()));
 	if (Comp->ActiveGameplayTags.HasAny(BlockTags)) {
 		return false;
 	}
@@ -51,7 +54,7 @@ bool USAction::CanStart_Implementation(AActor* Instigator) {
 }
 
 bool USAction::IsRunning() {
-	return bIsRunning;
+	return RepData.bIsRunning;
 }
 
 UWorld* USAction::GetWorld() const {
@@ -71,17 +74,17 @@ USActionComponent* USAction::GetOwningComponent() const {
 	return ActionComp;
 }
 
-void USAction::OnRep_IsRunning() {
-	if (bIsRunning) {
-		StartAction(nullptr);
+void USAction::OnRep_RepData() {
+	if (RepData.bIsRunning) {
+		StartAction(RepData.Instigator);
 	} else {
-		StopAction(nullptr);
+		StopAction(RepData.Instigator);
 	}
 }
 
 void USAction::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(USAction, bIsRunning);
+	DOREPLIFETIME(USAction, RepData);
 	DOREPLIFETIME(USAction, ActionComp);
 }

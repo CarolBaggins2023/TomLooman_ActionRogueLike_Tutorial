@@ -36,26 +36,30 @@ bool USAttributeComponent::ApplyHealthChange(AActor *InstigatorActor, float Delt
 	}
 	
 	float OldHealth = Health;
-	
-	Health = FMath::Clamp(Health + Delta, 0, HealthMax);
+	float NewHealth = FMath::Clamp(Health + Delta, 0, HealthMax);
 
-	float ActualDelta = Health - OldHealth;
+	float ActualDelta = NewHealth - OldHealth;
 
-	// When it comes to networking, not wasting information is a big deal.
-	if (ActualDelta != 0.0f) {
-		// It will be called in MulticastHealthChanged.
-		// OnHealthChanged.Broadcast(InstigatorActor, this, Health, ActualDelta);
+	// Only cause real damage on Server.
+	if (GetOwner()->HasAuthority()) {
+		Health = NewHealth;
 
-		// If it is called on a client, it will just be called locally for its own client,
-		// and will not be sent to anyone else.
-		MulticastHealthChanged(InstigatorActor, Health, ActualDelta);
-	}
-	
+		// When it comes to networking, not wasting information is a big deal.
+		if (ActualDelta != 0.0f) {
+			// It will be called in MulticastHealthChanged.
+			// OnHealthChanged.Broadcast(InstigatorActor, this, Health, ActualDelta);
 
-	if (ActualDelta < 0.0f && Health <= 0.0f) {
-		ASGameModeBase *GM = GetWorld()->GetAuthGameMode<ASGameModeBase>();
-		if (GM) {
-			GM->OnActorKilled(GetOwner(), InstigatorActor);
+			// If it is called on a client, it will just be called locally for its own client,
+			// and will not be sent to anyone else.
+			MulticastHealthChanged(InstigatorActor, Health, ActualDelta);
+		}
+
+		// GameMode only exists on Server.
+		if (ActualDelta < 0.0f && Health <= 0.0f) {
+			ASGameModeBase *GM = GetWorld()->GetAuthGameMode<ASGameModeBase>();
+			if (GM) {
+				GM->OnActorKilled(GetOwner(), InstigatorActor);
+			}
 		}
 	}
 	
