@@ -28,6 +28,11 @@ void ASItemChest::Interact_Implementation(APawn* InstigatorPawn) {
 	OnRep_LidOpened();
 }
 
+void ASItemChest::OnActorLoaded_Implementation() {
+	// It has nothing to do with multi-player game and RepNotify.
+	OnRep_LidOpened();
+}
+
 void ASItemChest::OnRep_LidOpened() {
 	float CurrentPitch = bLidOpened ? TargetPitch : 0.0f;
 	LidMesh->SetRelativeRotation(FRotator(CurrentPitch, 0, 0));

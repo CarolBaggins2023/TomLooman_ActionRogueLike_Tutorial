@@ -18,6 +18,9 @@ public:
 	// Keep location, rotation and scale.
 	UPROPERTY()
 	FTransform Transform;
+
+	UPROPERTY()
+	TArray<uint8> ByteData;
 };
 
 /**

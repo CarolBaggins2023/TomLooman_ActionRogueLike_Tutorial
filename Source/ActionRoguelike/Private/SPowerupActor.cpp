@@ -5,6 +5,7 @@
 
 #include "Animation/AnimInstanceProxy.h"
 #include "Components/SphereComponent.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values
 ASPowerupActor::ASPowerupActor()
@@ -19,6 +20,8 @@ ASPowerupActor::ASPowerupActor()
 
 	RespawnTime = 5.0f;
 
+	bIsActive = true;
+	
 	// If server spawns an replicated actor, then the server will tell all clients to spawn
 	// a copy of this actor, of the same class and same transformation.
 	// The same when it comes to delete an replicated actor.
@@ -39,10 +42,23 @@ void ASPowerupActor::HideAndCooldownPowerup() {
 	GetWorldTimerManager().SetTimer(TimerHandle_RespawnTimer, this, &ASPowerupActor::ShowPowerup, RespawnTime);
 }
 
-void ASPowerupActor::SetPowerupState(bool bIsActivate) {
+void ASPowerupActor::SetPowerupState(bool bNewIsActive) {
+	bIsActive = bNewIsActive;
+
+	// Since we call it only on the Server, we should trigger RepNotify automatically.
+	OnRep_IsActive();
+}
+
+void ASPowerupActor::OnRep_IsActive() {
 	// collision
-	SetActorEnableCollision(bIsActivate);
+	SetActorEnableCollision(bIsActive);
 	
 	// visibility and propagate to children
-	RootComponent->SetVisibility(bIsActivate, true);
+	RootComponent->SetVisibility(bIsActive, true);
+}
+
+void ASPowerupActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ASPowerupActor, bIsActive);
 }

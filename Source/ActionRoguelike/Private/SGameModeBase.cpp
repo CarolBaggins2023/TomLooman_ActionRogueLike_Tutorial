@@ -13,6 +13,7 @@
 #include "GameFramework/GameSession.h"
 #include "GameFramework/GameStateBase.h"
 #include "Kismet/GameplayStatics.h"
+#include "Serialization/ObjectAndNameAsStringProxyArchive.h"
 
 static TAutoConsoleVariable<bool> CVarSpawnBots(TEXT("su.SpawnBots"), false, TEXT("Enable spawning of bots vias timer."));
 static TAutoConsoleVariable<bool> CVarSpawnPowerups(TEXT("su.SpawnPowerups"), false, TEXT("Enable spawning of powerups vias timer."));
@@ -226,6 +227,15 @@ void ASGameModeBase::WriteSaveGame() {
 		ActorData.ActorName = Actor->GetName();
 		ActorData.Transform = Actor->GetTransform();
 
+		// Pass the array to fill, with data from Actor.
+		FMemoryWriter MemWriter(ActorData.ByteData);
+		FObjectAndNameAsStringProxyArchive Ar(MemWriter, true);
+		// Find only variable with UPROPERTY(SaveGame).
+		Ar.ArIsSaveGame = true;
+		// Convert Actor's variables with UPROPERTY(SaveGame) macro into binary array.
+		// After calling Serialize(), ActorData.ByteData is filled.
+		Actor->Serialize(Ar);
+
 		CurrentSaveGame->SavedActors.Add(ActorData);
 	}
 	
@@ -252,6 +262,15 @@ void ASGameModeBase::LoadSaveGame() {
 			for (FActorSaveData ActorData : CurrentSaveGame->SavedActors) {
 				if (ActorData.ActorName == Actor->GetName()) {
 					Actor->SetActorTransform(ActorData.Transform);
+
+					FMemoryReader MemReader(ActorData.ByteData);
+					FObjectAndNameAsStringProxyArchive Ar(MemReader, true);
+					Ar.ArIsSaveGame = true;
+					// Convert binary array back into actor's variables.
+					Actor->Serialize(Ar);
+
+					ISGameplayInterface::Execute_OnActorLoaded(Actor);
+					
 					break;
 				}
 			}
