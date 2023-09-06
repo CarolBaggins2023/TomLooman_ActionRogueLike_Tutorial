@@ -118,4 +118,18 @@ void ASAICharacter::OnPawnSeen(APawn* Pawn) {
 	
 	SetTargetActor(Pawn);
 	// DrawDebugString(GetWorld(), Pawn->GetActorLocation(), TEXT("Player Spotted"), nullptr, FColor::White, 0.5f, true);
+
+	MulticastPawnSeen();
+}
+
+void ASAICharacter::MulticastPawnSeen_Implementation() {
+	if (PlayerSpottedWidget == nullptr && ensure(PlayerSpottedWidgetClass)) {
+		PlayerSpottedWidget = CreateWidget<USWorldUserWidget>(GetWorld(), PlayerSpottedWidgetClass);
+		if (ensure(PlayerSpottedWidget)) {
+			PlayerSpottedWidget->AttachedActor = this;
+			// Index which is higher than default (0) places itself on the top of any other widget.
+			// Otherwise, it may end up behind the minion health bar.
+			PlayerSpottedWidget->AddToViewport(10);
+		}
+	}
 }

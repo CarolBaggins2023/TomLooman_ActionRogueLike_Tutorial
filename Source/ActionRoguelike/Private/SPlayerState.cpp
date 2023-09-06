@@ -12,7 +12,7 @@ int ASPlayerState::GetCredits() const {
 }
 
 void ASPlayerState::AddCredits(int32 Delta) {
-	if (!ensure(Delta > 0.0f)) {
+	if (!ensure(Delta >= 0.0f)) {
 		return;
 	}
 
@@ -50,7 +50,9 @@ void ASPlayerState::SavePlayerState_Implementation(USSaveGame* SaveObject) {
 
 void ASPlayerState::LoadPlayerState_Implementation(USSaveGame* SaveObject) {
 	if (SaveObject) {
-		Credits = SaveObject->Credits;
+		// Credits = SaveObject->Credits;
+		// Make sure OnCreditsChanged is called.
+		AddCredits(SaveObject->Credits);
 	}
 }
 

@@ -288,10 +288,12 @@ void ASGameModeBase::InitGame(const FString& MapName, const FString& Options, FS
 }
 
 void ASGameModeBase::HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer) {
-	Super::HandleStartingNewPlayer_Implementation(NewPlayer);
-
+	/* Calling before Super::, so we set variables before BeginPlayState is called in PlayerController (which is where we instantiate UI). */
 	ASPlayerState *PS = NewPlayer->GetPlayerState<ASPlayerState>();
 	if (PS) {
 		PS->LoadPlayerState(CurrentSaveGame);
 	}
+
+	// It will call BeginPlayState in PlayerController.
+	Super::HandleStartingNewPlayer_Implementation(NewPlayer);
 }

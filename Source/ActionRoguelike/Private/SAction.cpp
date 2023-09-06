@@ -20,6 +20,13 @@ void USAction::StartAction_Implementation(AActor* Instigator) {
 
 	RepData.bIsRunning = true;
 	RepData.Instigator = Instigator;
+
+	// Only the Server is allowed to set action's start time.
+	if (GetOwningComponent()->GetOwnerRole() == ROLE_Authority) {
+		TimeStarted = GetWorld()->GetTimeSeconds();
+	}
+	
+	GetOwningComponent()->OnActionStarted.Broadcast(GetOwningComponent(), this);
 }
 
 void USAction::StopAction_Implementation(AActor* Instigator) {
@@ -36,6 +43,8 @@ void USAction::StopAction_Implementation(AActor* Instigator) {
 
 	RepData.bIsRunning = false;
 	RepData.Instigator = Instigator;
+
+	GetOwningComponent()->OnActionStopped.Broadcast(GetOwningComponent(), this);
 }
 
 bool USAction::CanStart_Implementation(AActor* Instigator) {
@@ -87,4 +96,5 @@ void USAction::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetime
 
 	DOREPLIFETIME(USAction, RepData);
 	DOREPLIFETIME(USAction, ActionComp);
+	DOREPLIFETIME(USAction, TimeStarted);
 }
