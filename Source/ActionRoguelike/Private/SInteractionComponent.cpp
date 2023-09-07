@@ -98,7 +98,7 @@ void USInteractionComponent::PrimaryInteract() {
 
 void USInteractionComponent::ServerInteract_Implementation(AActor *InFocus) {
 	if (InFocus == nullptr) {
-		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, "No FocusActor to interact.");
+		// GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, "No FocusActor to interact.");
 		return;
 	}
 	

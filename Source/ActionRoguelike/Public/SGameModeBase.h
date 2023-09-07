@@ -3,12 +3,47 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SMonsterData.h"
 #include "SPowerupActor.h"
 #include "SSaveGame.h"
+#include "Engine/DataTable.h"
 #include "EnvironmentQuery/EnvQuery.h"
 #include "EnvironmentQuery/EnvQueryInstanceBlueprintWrapper.h"
 #include "GameFramework/GameModeBase.h"
 #include "SGameModeBase.generated.h"
+
+class UDataTable;
+
+USTRUCT(BlueprintType)
+struct FMonsterInfoRow : public FTableRowBase {
+	GENERATED_BODY()
+
+public:
+
+	FMonsterInfoRow() {
+		Weight = 1.0f;
+		SpawnCost = 5.0f;
+		KillReward = 20.0f;
+	}
+
+	/*UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TSubclassOf<AActor> MonsterClass;*/
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	USMonsterData *MonsterData;
+
+	/* Relative chance to pick this monster. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float Weight;
+
+	/* Points required by GameMode to spawn this unit. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float SpawnCost;
+
+	/* Amount of credits awarded to killer of this unit. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float KillReward;
+};
 
 /**
  * 
@@ -54,7 +89,10 @@ protected:
 	UEnvQuery *SpawnPowerupQuery;
 
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
-	TSubclassOf<AActor> MinionClass;
+	UDataTable *MonsterTable;
+	
+	/*UPROPERTY(EditDefaultsOnly, Category = "AI")
+	TSubclassOf<AActor> MinionClass;*/
 
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
 	int32 MaxBotCount;
