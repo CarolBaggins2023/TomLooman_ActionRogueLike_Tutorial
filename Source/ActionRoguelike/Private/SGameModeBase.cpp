@@ -7,7 +7,9 @@
 #include "SCharacter.h"
 #include "SItemChest.h"
 #include "SPlayerState.h"
+#include "ActionRoguelike/ActionRoguelike.h"
 #include "AI/SAICharacter.h"
+#include "Engine/AssetManager.h"
 #include "EnvironmentQuery/EnvQueryManager.h"
 #include "EnvironmentQuery/EnvQueryTypes.h"
 #include "GameFramework/GameSession.h"
@@ -33,6 +35,17 @@ ASGameModeBase::ASGameModeBase() {
 	RequiredPowerupDistance = 500.0f;
 
 	SlotName = "SaveGame01";
+}
+
+void ASGameModeBase::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) {
+	Super::InitGame(MapName, Options, ErrorMessage);
+
+	FString SelectedSaveSlot = UGameplayStatics::ParseOption(Options, "SaveGame");
+	if (SelectedSaveSlot.Len() > 0) {
+		SlotName = SelectedSaveSlot;
+	}
+	
+	LoadSaveGame();
 }
 
 void ASGameModeBase::StartPlay() {
@@ -108,9 +121,6 @@ void ASGameModeBase::OnBotSpawnQueryCompleted(UEnvQueryInstanceBlueprintWrapper 
 		// So, we need to raise them a bit or use parameters to force them to spawn.
 		// Locations[0].Z += 1000.0f;
 
-		FActorSpawnParameters SpawnParams;
-		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
 		if (MonsterTable) {
 			TArray<FMonsterInfoRow*> Rows;
 			MonsterTable->GetAllRows("", Rows);
@@ -118,8 +128,39 @@ void ASGameModeBase::OnBotSpawnQueryCompleted(UEnvQueryInstanceBlueprintWrapper 
 			int32 RandomIndex = FMath::RandRange(0, Rows.Num() - 1);
 			FMonsterInfoRow *SelectedRow = Rows[RandomIndex];
 
-			GetWorld()->SpawnActor<AActor>(SelectedRow->MonsterData->MonsterClass, Locations[0], FRotator::ZeroRotator, SpawnParams);
+			UAssetManager *Manager = UAssetManager::GetIfValid();
+			if (Manager) {
+				LogOnScreen(this, "Loading monsters...", FColor::Green);
+				
+				TArray<FName> Bundles;
+				FStreamableDelegate Delegate = FStreamableDelegate::CreateUObject(this, &ASGameModeBase::OnMonsterLoaded, SelectedRow->MonsterId, Locations[0]);
+				Manager->LoadPrimaryAsset(SelectedRow->MonsterId, Bundles, Delegate);
+			}
+		}
+	}
+}
+
+void ASGameModeBase::OnMonsterLoaded(FPrimaryAssetId LoadedId, FVector SpawnLocation) {
+	LogOnScreen(this, "Finish loading.", FColor::Green);
+	
+	UAssetManager *Manager = UAssetManager::GetIfValid();
+	if (Manager) {
+		USMonsterData *MonsterData = Cast<USMonsterData>(Manager->GetPrimaryAssetObject(LoadedId));
+		if (MonsterData) {
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+			
+			AActor *NewBot = GetWorld()->SpawnActor<AActor>(MonsterData->MonsterClass, SpawnLocation, FRotator::ZeroRotator, SpawnParams);
 			// DrawDebugSphere(GetWorld(), Locations[0], 50.0f, 20, FColor::Blue, false, 60.0f);
+			LogOnScreen(this, FString::Printf(TEXT("Spawn enemy: %s (%s)"), *GetNameSafe(NewBot), *GetNameSafe(MonsterData)));
+
+			// Grant special actions, buffs etc.
+			USActionComponent *ActionComp = Cast<USActionComponent>(NewBot->GetComponentByClass(USActionComponent::StaticClass()));
+			if (ActionComp) {
+				for (TSubclassOf<USAction> ActionClass : MonsterData->Actions) {
+					ActionComp->AddAction(NewBot, ActionClass);
+				}
+			}
 		}
 	}
 }
@@ -289,12 +330,6 @@ void ASGameModeBase::LoadSaveGame() {
 		CurrentSaveGame = Cast<USSaveGame>(UGameplayStatics::CreateSaveGameObject(USSaveGame::StaticClass()));
 		UE_LOG(LogTemp, Log, TEXT("Created New SaveGame Data."));
 	}
-}
-
-void ASGameModeBase::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) {
-	Super::InitGame(MapName, Options, ErrorMessage);
-
-	LoadSaveGame();
 }
 
 void ASGameModeBase::HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer) {

@@ -5,7 +5,6 @@
 
 #include "SSaveGame.h"
 #include "Net/UnrealNetwork.h"
-#include "Tools/UEdMode.h"
 
 int ASPlayerState::GetCredits() const {
 	return Credits;

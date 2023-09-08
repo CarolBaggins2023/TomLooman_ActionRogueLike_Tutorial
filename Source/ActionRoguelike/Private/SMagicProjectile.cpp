@@ -23,6 +23,8 @@ ASMagicProjectile::ASMagicProjectile()
 	MoveComp->InitialSpeed = 3000.0f;
 
 	Damage = 50.0f;
+
+	InitialLifeSpan = 10.f;
 }
 
 void ASMagicProjectile::BeginPlay() {

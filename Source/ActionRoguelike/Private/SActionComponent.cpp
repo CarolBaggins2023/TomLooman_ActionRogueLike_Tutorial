@@ -7,6 +7,8 @@
 #include "Engine/ActorChannel.h"
 #include "Net/UnrealNetwork.h"
 
+DECLARE_CYCLE_STAT(TEXT("StartActionByName"), STAT_StartActionByName, STATGROUP_ACTIONROGUELIKE);
+
 // Sets default values for this component's properties
 USActionComponent::USActionComponent() {
 
@@ -25,6 +27,21 @@ void USActionComponent::BeginPlay() {
 			AddAction(GetOwner(), ActionClass);
 		}
 	}
+}
+
+void USActionComponent::EndPlay(const EEndPlayReason::Type EndPlayReason) {
+	// Stop all actions.
+	// If we don't make a copy, we will crush here.
+	// Because StopAction() will remove the Action from the array, and we know that it is illegal to change
+	// the size of an array or vector when it is being iterated.
+	TArray<USAction*> ActionsCopy = Actions;
+	for (USAction *Action : ActionsCopy) {
+		if (Action && Action->IsRunning()) {
+			Action->StopAction(GetOwner());
+		}
+	}
+	
+	Super::EndPlay(EndPlayReason);
 }
 
 // Called every frame
@@ -77,6 +94,8 @@ void USActionComponent::RemoveAction(USAction *ActionToRemove) {
 }
 
 bool USActionComponent::StartActionByName(AActor* Instigator, FName ActionName) {
+	SCOPE_CYCLE_COUNTER(STAT_StartActionByName);
+	
 	for (USAction *Action : Actions) {
 		if (Action && Action->ActionName == ActionName) {
 			if (!Action->CanStart(Instigator)) {
@@ -89,6 +108,8 @@ bool USActionComponent::StartActionByName(AActor* Instigator, FName ActionName) 
 			if (!GetOwner()->HasAuthority()) {
 				ServerStartAction(Instigator, ActionName);
 			}
+
+			TRACE_BOOKMARK(TEXT("StartAction: %s"), *GetNameSafe(Action));
 			
 			Action->StartAction(Instigator);
 			return true;

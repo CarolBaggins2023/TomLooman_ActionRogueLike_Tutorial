@@ -29,8 +29,11 @@ public:
 	/*UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<AActor> MonsterClass;*/
 
+	/*UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	USMonsterData *MonsterData;*/
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	USMonsterData *MonsterData;
+	FPrimaryAssetId MonsterId;
 
 	/* Relative chance to pick this monster. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
@@ -116,7 +119,7 @@ protected:
 
 	UPROPERTY()
 	USSaveGame *CurrentSaveGame;
-
+	
 	UFUNCTION()
 	void OnBotSpawnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus);
 
@@ -134,4 +137,7 @@ protected:
 
 	UFUNCTION()
 	void RespawnPlayerElapsed(AController *PlayerController);
+
+	void OnMonsterLoaded(FPrimaryAssetId LoadedId, FVector SpawnLocation);
+	
 };
